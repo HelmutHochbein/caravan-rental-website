@@ -1,0 +1,49 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-warm-white: #FAF8F5;
+  --color-sand: #E8DFD0;
+  --color-amber: #C9A96E;
+  --color-bark: #6B5B4B;
+  --color-forest: #4A5940;
+  --color-charcoal: #2D2D2D;
+  --color-accent: #B8860B;
+  --color-accent-hover: #9A7209;
+  --font-sans: var(--font-geist-sans);
+}
+
+html {
+  scroll-behavior: smooth;
+  overflow-x: hidden;
+}
+
+body {
+  background: var(--color-warm-white);
+  color: var(--color-charcoal);
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+@keyframes heroRise {
+  from { transform: translateY(2rem); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+
+.hero-rise {
+  animation: heroRise 0.9s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
