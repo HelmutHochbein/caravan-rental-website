@@ -1,36 +1,66 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Caravan Rental Website
 
-## Getting Started
+A performant, animated single-page website for a motorhome rental business — built with Next.js 16, React 19, and Tailwind CSS v4. Features a multi-step booking inquiry form, GSAP-powered scroll animations, a lightbox gallery, and a cookie-consent-gated Google Maps embed. Deployed to Strato shared hosting via GitHub Actions.
 
-First, run the development server:
+## Problem → Solution → Result
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+The client needed a mobile-first landing page that communicates trust quickly and converts visitors into booking inquiries — without a backend or database. The solution uses a mailto-based multi-step form (no server required), lazy-loaded video for Core Web Vitals, and GSAP + Framer Motion for polished scroll animations.
+
+## Architecture
+
+```
+┌─────────────────────────────────────────┐
+│  Next.js 16 App Router (static export)  │
+│                                         │
+│  src/app/                               │
+│  ├── page.tsx           (main page)     │
+│  ├── rechtliches/       (legal pages)   │
+│  └── components/                        │
+│      ├── Hero.tsx       (GSAP + video)  │
+│      ├── Gallery.tsx    (lightbox)      │
+│      ├── MultiStepForm.tsx  (4-step)    │
+│      ├── CalendarSection.tsx            │
+│      ├── CookieBanner.tsx  (consent)    │
+│      └── ...                            │
+│                                         │
+│  Static export → SFTP → Strato hosting  │
+└─────────────────────────────────────────┘
+         │
+         │  GitHub Actions CI/CD
+         ▼
+    Strato shared hosting
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**No backend** — the booking form composes a pre-filled mailto link. Google Maps loads only after cookie consent.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Tech Stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+- **Next.js 16** · **React 19** · **TypeScript**
+- **Tailwind CSS v4** (PostCSS plugin, no config file)
+- **GSAP** + **Framer Motion** for scroll-triggered animations
+- **Bun** as package manager / build tool
+- **GitHub Actions** → SFTP deploy to shared hosting (see `docs/deploy.yml`)
 
-## Learn More
+## Local Setup
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+bun install
+bun dev          # http://localhost:3000
+bun run build    # static export → ./out/
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## CI/CD
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+Push to `main` → GitHub Actions builds with Bun → deploys `./out/*` via SFTP.
 
-## Deploy on Vercel
+Required GitHub secrets: `FTP_HOST`, `FTP_USER`, `FTP_PASSWORD`
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+(The workflow file is at `docs/deploy.yml` — move to `.github/workflows/` to activate.)
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Key Design Decisions
+
+- **Static export** (`output: 'export'`) — no Node.js runtime on shared hosting; pure static files served by Apache.
+- **Tailwind v4** — utility-first with CSS custom properties for the brand colour palette, no separate config file.
+- **Lazy video** — hero video uses `preload="none"` and loads after LCP to avoid penalising Core Web Vitals on mobile.
+- **Cookie-gated Maps** — Google Maps iframe renders only after the user accepts non-essential cookies; before that, a placeholder with a static link is shown.
+- **mailto form** — avoids any backend or third-party form service; trade-off is dependency on the visitor's local email client.
